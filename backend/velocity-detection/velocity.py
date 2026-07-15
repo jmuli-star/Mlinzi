@@ -8,7 +8,6 @@ DuckDB is used to query the csv file directly,enabling fast analytical queries w
 """
 
 import duckdb
-import pandas as pd
 from pathlib import path 
 
 N_THRESHOLD = 5 # more than the transactions
@@ -17,4 +16,26 @@ X_HOURS = 2 # within this hours triggers a flag
 RULE_NAME = 'velocity'
 
 BASE_DIR = path(__file__).resolve().parent
-DATA_FILE = BASE_DIR.parent /"data"/ "transactions.csv"
+DATA_FILE = BASE_DIR.parent /"data"/ "mlinzi_sample_transactions.csv"
+
+def rows_as_dicts(conn: duckdb.DuckDBPyConnection) -> list[dict]:
+    """Convert DuckDB query results into a list of dictionaries."""
+    columns = [column[0] for column in conn.description]
+    return [dict(zip(columns, row)) for row in conn.fetchall()]
+
+def load_transactions(conn: duckdb.DuckDBPyConnection) -> list[dict]:
+    """
+    Read the transaction csv file using DuckDB and execute the sql query.
+    """
+    conn.execute(
+        """
+         SELECT 
+           customer_id,
+           transacton_id,
+           timestamp
+        FROM read_csv(?, header=True)
+        """,
+        [str[DATA_FILE]],
+    )
+    return rows_as_dicts(conn)
+    
