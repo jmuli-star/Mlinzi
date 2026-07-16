@@ -57,9 +57,9 @@ def detect_velocity(transactions: list[dict]) -> list[dict]:
 
   flagged_transaction_ids = set()
 
-  for customer_id, customer_transaction in customers.items():
+  for customer_id, customer_transactions in customers.items():
      sorted_transactions = sorted(
-        customer_transaction, key=lambda transaction: transaction["timestamp"]
+        customer_transactions, key=lambda transaction: transaction["timestamp"]
      )
      window_start_index = 0
      for window_end_index in range(len(sorted_transactions)):
