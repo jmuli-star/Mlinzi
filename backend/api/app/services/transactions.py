@@ -15,6 +15,8 @@ def get_flagged_transactions(
     db: Session,
     target_date: date,
     flag: str | None = None,
+    tolerance_type: str = "percentage",
+    tolerance_value: float = 5,
 ) -> list[Transaction]:
     query = select(Transaction)
 
@@ -38,10 +40,11 @@ def get_flagged_transactions(
     if not DATA_FILE.exists():
         return []
 
-    _populate_from_csv(db)
+    _populate_from_csv(db, tolerance_type, tolerance_value)
 
     results = db.exec(query).all()
     return results
+
 
 def _populate_from_csv(db: Session) -> None:
     from repeated_withdrawal.repeated import (
@@ -58,7 +61,7 @@ def _populate_from_csv(db: Session) -> None:
     )
 
     velocity_txns = detect_velocity(load_velocity())
-    repeated_txns = detect_repeated_withdrawals(load_repeated(), tolerance_type="amount", tolerance_value=0)
+    repeated_txns = detect_repeated_withdrawals(load_repeated())
     round_number_txns = detect_round_number_anomalies(load_round_number())
 
     all_flagged = {}
