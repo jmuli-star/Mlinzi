@@ -43,29 +43,22 @@ def get_flagged_transactions(
     results = db.exec(query).all()
     return results
 
-
 def _populate_from_csv(db: Session) -> None:
     from repeated_withdrawal.repeated import (
         detect_repeated_withdrawals,
-    )
-    from repeated_withdrawal.repeated import (
         load_transactions as load_repeated,
     )
     from round_number_anomaly.round_number_anomaly import (
         detect_round_number_anomalies,
-    )
-    from round_number_anomaly.round_number_anomaly import (
         load_transactions as load_round_number,
     )
     from velocity_detection.velocity import (
         detect_velocity,
-    )
-    from velocity_detection.velocity import (
         load_transactions as load_velocity,
     )
 
     velocity_txns = detect_velocity(load_velocity())
-    repeated_txns = detect_repeated_withdrawals(load_repeated())
+    repeated_txns = detect_repeated_withdrawals(load_repeated(), tolerance_type="amount", tolerance_value=0)
     round_number_txns = detect_round_number_anomalies(load_round_number())
 
     all_flagged = {}

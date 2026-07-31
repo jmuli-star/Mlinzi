@@ -15,6 +15,7 @@ def flagged_transaction(
     target_date: Optional[date] = None,
     db: Session = Depends(get_db),
 ):
+    # active_date = target_date or date.today()
     return get_flagged_transactions(db, target_date or date.today(), flag)
 
 

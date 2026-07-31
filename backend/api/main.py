@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import sys
-from fastapi.middleware.cors import CORSMiddleware
+
 
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
@@ -17,6 +17,7 @@ CORS_ALLOWED_ORIGINS = [
 
 from velocity_detection import velocity
 from repeated_withdrawal import repeated
+from round_number_anomaly import round_number_anomaly
 
 app = FastAPI(
     title="Mlinzi Fraud Detection API",
@@ -31,18 +32,14 @@ app.add_middleware(
 )
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 @app.get("/")
 def home():
     return {"message": "Mlinzi Fraud Detection API"}
 
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
 
 @app.get("/velocity")
 def velocity_detection():
@@ -63,5 +60,12 @@ def repeated_withdrawals_detection(
         tolerance_value=tolerance_value,
     )
 
+    return flagged
+
+@app.get("/round_number_anomalies")
+def round_number_anomalies_detection():
+    """Detect accounts with suspicious clusters of round-number transactions."""
+    transactions = round_number_anomaly.load_transactions()
+    flagged = round_number_anomaly.detect_round_number_anomalies(transactions)
     return flagged
 
