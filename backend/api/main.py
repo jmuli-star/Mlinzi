@@ -7,6 +7,9 @@ import sys
 from api.app.routes import transactions ,users
 
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from velocity_detection.velocity import detect_velocity, load_transactions
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BACKEND_DIR))
@@ -21,7 +24,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
-from velocity_detection import velocity
 from repeated_withdrawal import repeated
 from round_number_anomaly import round_number_anomaly
 
@@ -54,6 +56,7 @@ def velocity_detection():
     transactions = velocity.load_transactions()
     flagged = velocity.detect_velocity(transactions)
     return flagged
+
 
 @app.get("/repeated_withdrawals")
 def repeated_withdrawals_detection(
