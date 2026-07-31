@@ -1,10 +1,10 @@
-from sorting.sorter import Adapter
-import pandas
-from pathlib import Path
 import sys
 from collections import defaultdict
 from datetime import timedelta
+from pathlib import Path
 
+import pandas
+from sorting.sorter import Adapter
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BACKEND_DIR))
@@ -68,9 +68,7 @@ def calculate_tolerance(
     if tolerance_type == "percentage":
         return amount * (tolerance_value / 100)
 
-    raise ValueError(
-        "tolerance_type must be either 'fixed' or 'percentage'"
-    )
+    raise ValueError("tolerance_type must be either 'fixed' or 'percentage'")
 
 
 def amounts_are_similar(
@@ -114,19 +112,13 @@ def detect_repeated_withdrawals(
     """
 
     if tolerance_type not in {"fixed", "percentage"}:
-        raise ValueError(
-            "tolerance_type must be either 'fixed' or 'percentage'"
-        )
+        raise ValueError("tolerance_type must be either 'fixed' or 'percentage'")
 
     if tolerance_value <= 0:
-        raise ValueError(
-            "tolerance_value must be greater than 0"
-        )
+        raise ValueError("tolerance_value must be greater than 0")
 
     if tolerance_type == "percentage" and tolerance_value > 100:
-        raise ValueError(
-            "percentage tolerance cannot be greater than 100"
-        )
+        raise ValueError("percentage tolerance cannot be greater than 100")
 
     customers = defaultdict(list)
 
@@ -135,9 +127,7 @@ def detect_repeated_withdrawals(
         customer_id = transaction["customer_id"]
         customers[customer_id].append(transaction)
 
-    window_size_limit = timedelta(
-        hours=TIME_WINDOW_HOURS
-    )
+    window_size_limit = timedelta(hours=TIME_WINDOW_HOURS)
 
     flagged_transactions = []
     flagged_transaction_ids = set()
@@ -153,21 +143,15 @@ def detect_repeated_withdrawals(
         window_start_index = 0
 
         # Move through the customer's transactions.
-        for window_end_index in range(
-            len(sorted_transactions)
-        ):
-            current_transaction = sorted_transactions[
-                window_end_index
-            ]
+        for window_end_index in range(len(sorted_transactions)):
+            current_transaction = sorted_transactions[window_end_index]
 
             # Move the start of the window forward until
             # all transactions are within the configured
             # time window.
             while (
                 current_transaction["timestamp"]
-                - sorted_transactions[
-                    window_start_index
-                ]["timestamp"]
+                - sorted_transactions[window_start_index]["timestamp"]
                 > window_size_limit
             ):
                 window_start_index += 1
