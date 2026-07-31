@@ -1,10 +1,9 @@
-from velocity_detection.velocity import load_transactions, detect_velocity
+import sys
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pathlib import Path
-import sys
-from fastapi.middleware.cors import CORSMiddleware
-
+from velocity_detection.velocity import detect_velocity, load_transactions
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BACKEND_DIR))
@@ -15,8 +14,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
-from velocity_detection import velocity
 from repeated_withdrawal import repeated
+from velocity_detection import velocity
 
 app = FastAPI(
     title="Mlinzi Fraud Detection API",
@@ -31,14 +30,6 @@ app.add_middleware(
 )
 
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 @app.get("/")
 def home():
     return {"message": "Mlinzi Fraud Detection API"}
@@ -49,6 +40,7 @@ def velocity_detection():
     transactions = velocity.load_transactions()
     flagged = velocity.detect_velocity(transactions)
     return flagged
+
 
 @app.get("/repeated_withdrawals")
 def repeated_withdrawals_detection(
@@ -64,4 +56,3 @@ def repeated_withdrawals_detection(
     )
 
     return flagged
-
